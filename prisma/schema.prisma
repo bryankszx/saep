@@ -14,14 +14,13 @@ datasource db {
 model Produto {
   id            Int            @id @default(autoincrement())
   nome          String
-  descricao     String?
   preco         Float
   estoque       Int
-  fabricante    Fabricante?    @relation(fields: [fabricanteId], references: [id])
-  fabricanteId  Int?
-  categoria     Categoria?     @relation(fields: [categoriaId], references: [id])
-  categoriaId   Int?
-  fichaTecnica  FichaTecnica?  @relation("ProdutoFichaTecnica")
+  fabricante    Fabricante     @relation(fields: [fabricanteId], references: [id], onDelete: Cascade)
+  fabricanteId  Int
+  categoria     Categoria      @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+  categoriaId   Int
+  fichaTecnicas FichaTecnica[] @relation("ProdutoFichaTecnica")
   estoques      Estoque[]      @relation("ProdutoEstoque")
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -30,9 +29,7 @@ model Produto {
 model Fabricante {
   id          Int       @id @default(autoincrement())
   nome        String    @unique
-  cnpj        String    @unique
-  endereco    String?
-  telefone    String?
+  paisorigem  String
   produtos    Produto[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -41,38 +38,31 @@ model Fabricante {
 model Categoria {
   id          Int       @id @default(autoincrement())
   nome        String    @unique
-  descricao   String?
   produtos    Produto[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
 
 model FichaTecnica {
-  id                    Int       @id @default(autoincrement())
-  produto               Produto   @relation("ProdutoFichaTecnica", fields: [produtoId], references: [id])
-  produtoId             Int       @unique
-  descricao             String?
-  especificacoes        String?
-  instrucoesUso         String?
-  informacoesNutricionais String?
-  peso                  String?
-  dimensoes             String?
-  garantia              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  id              Int       @id @default(autoincrement())
+  produto         Produto   @relation("ProdutoFichaTecnica", fields: [produtoId], references: [id], onDelete: Cascade)
+  produtoId       Int
+  especificacao   String
+  valor           String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([produtoId])
 }
 
 model Estoque {
-  id          Int       @id @default(autoincrement())
-  produto     Produto   @relation("ProdutoEstoque", fields: [produtoId], references: [id])
-  produtoId   Int
-  quantidade  Int
-  tipo        String    // 'entrada', 'saida', 'ajuste'
-  motivo      String?
-  observacao  String?
-  data        DateTime  @default(now())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id              Int       @id @default(autoincrement())
+  produto         Produto   @relation("ProdutoEstoque", fields: [produtoId], references: [id], onDelete: Cascade)
+  produtoId       Int
+  quantidadeAtual Int
+  estoqueMinimo   Int
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([produtoId])
 }

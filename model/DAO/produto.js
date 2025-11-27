@@ -3,23 +3,30 @@ const prisma = new PrismaClient();
 
 const produtoDAO = {
     // Inserir um novo produto
-    insertProduto: async function(produto) {
-        try {
-            const result = await prisma.produto.create({
-                data: {
-                    nome: produto.nome,
-                    descricao: produto.descricao || null,
-                    preco: parseFloat(produto.preco),
-                    estoque: parseInt(produto.estoque, 10),
-                    categoria: produto.categoria || null
-                }
-            });
-            return result;
-        } catch (error) {
-            console.error('Erro no DAO ao inserir produto:', error);
-            return false;
-        }
-    },
+insertProduto: async function(produto) {
+    try {
+        // Cria o objeto de dados básicos
+        const data = {
+            nome: produto.nome,
+            preco: parseFloat(produto.preco),
+            estoque: parseInt(produto.estoque, 10),
+            categoria: {
+                connect: { id: parseInt(produto.idcategoria, 10) }
+            },
+            fabricante: {
+                connect: { id: parseInt(produto.idfabricante, 10) }
+            }
+        };
+
+        const result = await prisma.produto.create({
+            data: data
+        });
+        return result;
+    } catch (error) {
+        console.error('Erro no DAO ao inserir produto:', error);
+        return false;
+    }
+},
 
     // Buscar todos os produtos
     selectAllProdutos: async function() {
@@ -54,17 +61,30 @@ const produtoDAO = {
     // Atualizar produto
     updateProduto: async function(dadosProduto) {
         try {
+            // Cria o objeto de dados básicos
+            const data = {
+                nome: dadosProduto.nome,
+                preco: parseFloat(dadosProduto.preco),
+                estoque: parseInt(dadosProduto.estoque, 10)
+            };
+
+            // Atualiza a categoria apenas se fornecida
+            if (dadosProduto.idcategoria !== undefined) {
+                data.categoria = dadosProduto.idcategoria 
+                    ? { connect: { id: parseInt(dadosProduto.idcategoria, 10) } }
+                    : { disconnect: true };
+            }
+
+            // Atualiza o fabricante apenas se fornecido
+            if (dadosProduto.idfabricante !== undefined) {
+                data.fabricante = dadosProduto.idfabricante
+                    ? { connect: { id: parseInt(dadosProduto.idfabricante, 10) } }
+                    : { disconnect: true };
+            }
+
             const result = await prisma.produto.update({
-                where: {
-                    id: parseInt(dadosProduto.id, 10)
-                },
-                data: {
-                    nome: dadosProduto.nome,
-                    descricao: dadosProduto.descricao || null,
-                    preco: parseFloat(dadosProduto.preco),
-                    estoque: parseInt(dadosProduto.estoque, 10),
-                    categoria: dadosProduto.categoria || null
-                }
+                where: { id: parseInt(dadosProduto.id, 10) },
+                data: data
             });
             return result;
         } catch (error) {
@@ -144,14 +164,12 @@ const produtoDAO = {
         }
     },
     
-    // Buscar produto por nome (insensível a maiúsculas e minúsculas)
     selectByNome: async function(nome) {
         try {
             const result = await prisma.produto.findMany({
                 where: {
                     nome: {
-                        equals: nome,
-                        mode: 'insensitive' // Torna a busca insensível a maiúsculas/minúsculas
+                        contains: nome
                     }
                 }
             });

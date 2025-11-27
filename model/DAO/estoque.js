@@ -2,6 +2,23 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const estoqueDAO = {
+    // Inserir um novo estoque
+    insertEstoque: async function(dadosEstoque) {
+        try {
+            const result = await prisma.estoque.create({
+                data: {
+                    produtoId: parseInt(dadosEstoque.idProduto, 10),
+                    quantidadeAtual: parseInt(dadosEstoque.quantidadeAtual, 10),
+                    estoqueMinimo: parseInt(dadosEstoque.estoqueMinimo, 10)
+                }
+            });
+            return result;
+        } catch (error) {
+            console.error('Erro no DAO ao inserir estoque:', error);
+            return false;
+        }
+    },
+
     // Inserir uma nova movimentação de estoque
     insertMovimentacao: async function(dadosMovimentacao) {
         try {

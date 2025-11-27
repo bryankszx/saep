@@ -5,27 +5,11 @@ const fichaTecnicaDAO = {
     // Inserir uma nova ficha técnica
     insertFichaTecnica: async function(dadosFichaTecnica) {
         try {
-            // Verifica se já existe uma ficha técnica para o produto
-            const fichaExistente = await prisma.fichaTecnica.findFirst({
-                where: {
-                    produtoId: parseInt(dadosFichaTecnica.produtoId, 10)
-                }
-            });
-
-            if (fichaExistente) {
-                return { error: 'Já existe uma ficha técnica para este produto' };
-            }
-
             const result = await prisma.fichaTecnica.create({
                 data: {
                     produtoId: parseInt(dadosFichaTecnica.produtoId, 10),
-                    descricao: dadosFichaTecnica.descricao || null,
-                    especificacoes: dadosFichaTecnica.especificacoes || null,
-                    instrucoesUso: dadosFichaTecnica.instrucoesUso || null,
-                    informacoesNutricionais: dadosFichaTecnica.informacoesNutricionais || null,
-                    peso: dadosFichaTecnica.peso || null,
-                    dimensoes: dadosFichaTecnica.dimensoes || null,
-                    garantia: dadosFichaTecnica.garantia || null
+                    especificacao: dadosFichaTecnica.especificacao,
+                    valor: dadosFichaTecnica.valor
                 }
             });
             return result;
@@ -56,7 +40,7 @@ const fichaTecnicaDAO = {
     // Buscar ficha técnica por ID do produto
     selectByProdutoId: async function(produtoId) {
         try {
-            const result = await prisma.fichaTecnica.findFirst({
+            const result = await prisma.fichaTecnica.findMany({
                 where: {
                     produtoId: parseInt(produtoId, 10)
                 },
@@ -64,7 +48,7 @@ const fichaTecnicaDAO = {
                     produto: true
                 }
             });
-            return result ? [result] : [];
+            return result;
         } catch (error) {
             console.error('Erro no DAO ao buscar ficha técnica por produto:', error);
             return false;
@@ -101,20 +85,8 @@ const fichaTecnicaDAO = {
             const result = await prisma.fichaTecnica.update({
                 where: { id: parseInt(id, 10) },
                 data: {
-                    descricao: dadosFichaTecnica.descricao !== undefined ? 
-                             dadosFichaTecnica.descricao : fichaExistente.descricao,
-                    especificacoes: dadosFichaTecnica.especificacoes !== undefined ? 
-                                  dadosFichaTecnica.especificacoes : fichaExistente.especificacoes,
-                    instrucoesUso: dadosFichaTecnica.instrucoesUso !== undefined ? 
-                                 dadosFichaTecnica.instrucoesUso : fichaExistente.instrucoesUso,
-                    informacoesNutricionais: dadosFichaTecnica.informacoesNutricionais !== undefined ? 
-                                           dadosFichaTecnica.informacoesNutricionais : fichaExistente.informacoesNutricionais,
-                    peso: dadosFichaTecnica.peso !== undefined ? 
-                        dadosFichaTecnica.peso : fichaExistente.peso,
-                    dimensoes: dadosFichaTecnica.dimensoes !== undefined ? 
-                             dadosFichaTecnica.dimensoes : fichaExistente.dimensoes,
-                    garantia: dadosFichaTecnica.garantia !== undefined ? 
-                            dadosFichaTecnica.garantia : fichaExistente.garantia,
+                    especificacao: dadosFichaTecnica.especificacao || fichaExistente.especificacao,
+                    valor: dadosFichaTecnica.valor || fichaExistente.valor,
                     produtoId: dadosFichaTecnica.produtoId ? 
                              parseInt(dadosFichaTecnica.produtoId, 10) : fichaExistente.produtoId
                 }

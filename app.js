@@ -68,15 +68,14 @@ app.delete('/v1/saep/produto/:id', cors(), async function(request, response) {
 });
 
 // Rotas para Estoque
-app.get('/v1/saep/estoque', cors(), async function(request, response) {
-    const { produtoId, dataInicio, dataFim } = request.query;
-    const dados = await estoqueController.listarMovimentacoes(produtoId, dataInicio, dataFim);
+app.get('/v1/saep/estoques', cors(), async function(request, response) {
+    const dados = await estoqueController.listarProdutos();
     response.status(dados.status_code).json(dados);
 });
 
 app.post('/v1/saep/estoque', cors(), async function(request, response) {
     const contentType = request.headers['content-type'];
-    const dados = await estoqueController.inserirMovimentacao(request.body, contentType);
+    const dados = await estoqueController.inserirEstoque(request.body, contentType);
     response.status(dados.status_code).json(dados);
 });
 

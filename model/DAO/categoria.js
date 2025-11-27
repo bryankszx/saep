@@ -18,8 +18,7 @@ const categoriaDAO = {
 
             const result = await prisma.categoria.create({
                 data: {
-                    nome: dadosCategoria.nome,
-                    descricao: dadosCategoria.descricao || null
+                    nome: dadosCategoria.nome
                 }
             });
             return result;
@@ -90,9 +89,7 @@ const categoriaDAO = {
             const result = await prisma.categoria.update({
                 where: { id: parseInt(id, 10) },
                 data: {
-                    nome: dadosCategoria.nome || categoriaExistente.nome,
-                    descricao: dadosCategoria.descricao !== undefined ? 
-                             dadosCategoria.descricao : categoriaExistente.descricao
+                    nome: dadosCategoria.nome || categoriaExistente.nome
                 }
             });
 

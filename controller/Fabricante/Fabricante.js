@@ -10,24 +10,17 @@ const inserirFabricante = async function(dadosFabricante, contentType) {
 
         // Validação dos campos obrigatórios
         if (
-            !dadosFabricante.nome || 
-            !dadosFabricante.cnpj
+            !dadosFabricante.nomefabricante || 
+            !dadosFabricante.paisorigem
         ) {
             return message.ERROR_REQUIRED_FIELDS;
         }
 
-        // Validação do CNPJ
-        const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/;
-        if (!cnpjRegex.test(dadosFabricante.cnpj)) {
-            return {
-                status: false,
-                status_code: 400,
-                message: 'CNPJ inválido. Formato esperado: XX.XXX.XXX/XXXX-XX'
-            };
-        }
-
         // Insere o fabricante
-        const resultDadosFabricante = await fabricanteDAO.insertFabricante(dadosFabricante);
+        const resultDadosFabricante = await fabricanteDAO.insertFabricante({
+            nome: dadosFabricante.nomefabricante,
+            paisorigem: dadosFabricante.paisorigem
+        });
 
         if (resultDadosFabricante.error) {
             return {

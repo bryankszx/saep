@@ -5,24 +5,21 @@ const fabricanteDAO = {
     // Inserir um novo fabricante
     insertFabricante: async function(dadosFabricante) {
         try {
-            // Verifica se já existe um fabricante com o mesmo CNPJ
+            // Verifica se já existe um fabricante com o mesmo nome
             const fabricanteExistente = await prisma.fabricante.findFirst({
                 where: {
-                    cnpj: dadosFabricante.cnpj
+                    nome: dadosFabricante.nome
                 }
             });
 
             if (fabricanteExistente) {
-                return { error: 'Já existe um fabricante com este CNPJ' };
+                return { error: 'Já existe um fabricante com este nome' };
             }
 
             const result = await prisma.fabricante.create({
                 data: {
                     nome: dadosFabricante.nome,
-                    cnpj: dadosFabricante.cnpj,
-                    telefone: dadosFabricante.telefone || null,
-                    email: dadosFabricante.email || null,
-                    endereco: dadosFabricante.endereco || null
+                    paisorigem: dadosFabricante.paisorigem
                 }
             });
             return result;
@@ -74,19 +71,19 @@ const fabricanteDAO = {
                 return { error: 'Fabricante não encontrado' };
             }
 
-            // Verifica se já existe outro fabricante com o mesmo CNPJ
-            if (dadosFabricante.cnpj) {
-                const cnpjExistente = await prisma.fabricante.findFirst({
+            // Verifica se já existe outro fabricante com o mesmo nome
+            if (dadosFabricante.nome) {
+                const nomeExistente = await prisma.fabricante.findFirst({
                     where: {
-                        cnpj: dadosFabricante.cnpj,
+                        nome: dadosFabricante.nome,
                         NOT: {
                             id: parseInt(id, 10)
                         }
                     }
                 });
 
-                if (cnpjExistente) {
-                    return { error: 'Já existe outro fabricante com este CNPJ' };
+                if (nomeExistente) {
+                    return { error: 'Já existe outro fabricante com este nome' };
                 }
             }
 
@@ -94,11 +91,7 @@ const fabricanteDAO = {
                 where: { id: parseInt(id, 10) },
                 data: {
                     nome: dadosFabricante.nome || fabricanteExistente.nome,
-                    cnpj: dadosFabricante.cnpj || fabricanteExistente.cnpj,
-                    telefone: dadosFabricante.telefone !== undefined ? 
-                             dadosFabricante.telefone : fabricanteExistente.telefone,
-                    email: dadosFabricante.email || fabricanteExistente.email,
-                    endereco: dadosFabricante.endereco || fabricanteExistente.endereco
+                    paisorigem: dadosFabricante.paisorigem || fabricanteExistente.paisorigem
                 }
             });
 

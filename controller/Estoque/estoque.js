@@ -1,6 +1,6 @@
 const message = require('../../modulo/config.js');
-const produtoDAO = require('../../model/DAO/estoque');
-const { inserirProduto } = require('../Produtos/produto.js');
+const produtoDAO = require('../../model/DAO/produto');
+const estoqueDAO = require('../../model/DAO/estoque');
 
 // Inserir um novo Estoque
 const inserirEstoque = async function(estoque, contentType) {
@@ -10,44 +10,45 @@ const inserirEstoque = async function(estoque, contentType) {
         }
 
         if (
-            !estoque.preco || estoque.preco === '' || estoque.preco === undefined ||
-            !estoque.estoque || estoque.estoque === '' || estoque.estoque === undefined
+            !estoque.idProduto || estoque.idProduto === '' || estoque.idProduto === undefined ||
+            estoque.quantidadeAtual === undefined || estoque.quantidadeAtual === '' ||
+            estoque.estoqueMinimo === undefined || estoque.estoqueMinimo === ''
         ) {
             return message.ERROR_REQUIRED_FIELDS;
         }
 
-        // Validação adicional para preço e estoque
-        if (isNaN(estoque.preco) || parseFloat(estoque.preco) <= 0) {
+        // Validação adicional para quantidade e estoque mínimo
+        if (isNaN(estoque.quantidadeAtual) || parseInt(estoque.quantidadeAtual, 10) < 0) {
             return {
                 status: false,
                 status_code: 400,
-                message: 'O preço deve ser um número maior que zero.'
+                message: 'A quantidade atual deve ser um número inteiro maior ou igual a zero.'
             };
         }
 
-        if (isNaN(estoque.estoque) || parseInt(estoque.estoque, 10) < 0) {
+        if (isNaN(estoque.estoqueMinimo) || parseInt(estoque.estoqueMinimo, 10) < 0) {
             return {
                 status: false,
                 status_code: 400,
-                message: 'O estoque deve ser um número inteiro maior ou igual a zero.'
+                message: 'O estoque mínimo deve ser um número inteiro maior ou igual a zero.'
             };
         }
 
         // Verifica se o produto existe
-        const produtoExistente = await produtoDAO.selectByIdProduto(estoque.produtoId);
+        const produtoExistente = await produtoDAO.selectByIdProduto(estoque.idProduto);
         if (!produtoExistente || produtoExistente.length === 0) {
             return message.ERROR_NOT_FOUND;
         }
 
-        const resultDadosEstoque = await produtoDAO.insertEstoque(estoque);
+        const resultDadosEstoque = await estoqueDAO.insertEstoque(estoque);
 
-        if (resultDadosProduto) {
+        if (resultDadosEstoque) {
             return message.SUCESS_CREATED_ITEM;
         } else {
             return message.ERROR_INTERNAL_SERVER_MODEL;
         }
     } catch (error) {
-        console.error('Erro no controlador ao inserir produto:', error);
+        console.error('Erro no controlador ao inserir estoque:', error);
         return message.ERROR_INTERNAL_SERVER_CONTROLLER;
     }
 };
@@ -312,6 +313,10 @@ const listarEstoqueBaixo = async function(estoqueMinimo) {
 
 module.exports = {
     inserirEstoque,
+    listarProdutos,
+    buscarProduto,
+    atualizarProduto,
+    deletarProduto,
     atualizarEstoque,
     buscarPorCategoria,
     listarEstoqueBaixo

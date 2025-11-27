@@ -9,12 +9,14 @@ const inserirCategoria = async function(dadosCategoria, contentType) {
         }
 
         // Validação dos campos obrigatórios
-        if (!dadosCategoria.nome) {
+        if (!dadosCategoria.nomecategoria) {
             return message.ERROR_REQUIRED_FIELDS;
         }
 
         // Insere a categoria
-        const resultDadosCategoria = await categoriaDAO.insertCategoria(dadosCategoria);
+        const resultDadosCategoria = await categoriaDAO.insertCategoria({
+            nome: dadosCategoria.nomecategoria
+        });
 
         if (resultDadosCategoria && resultDadosCategoria.error) {
             return {
