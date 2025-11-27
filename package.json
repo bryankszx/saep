@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@prisma/client": "^7.0.1",
+    "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "prisma": "^7.0.1"
+  }
+}
