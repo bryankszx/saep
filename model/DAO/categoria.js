@@ -103,17 +103,6 @@ const categoriaDAO = {
     // Deletar categoria
     deleteCategoria: async function(id) {
         try {
-            // Verifica se existem produtos associados a esta categoria
-            const produtosAssociados = await prisma.produto.findFirst({
-                where: { categoriaId: parseInt(id, 10) }
-            });
-
-            if (produtosAssociados) {
-                return { 
-                    error: 'Não é possível excluir a categoria pois existem produtos associados a ela.' 
-                };
-            }
-
             const result = await prisma.categoria.delete({
                 where: { id: parseInt(id, 10) }
             });
