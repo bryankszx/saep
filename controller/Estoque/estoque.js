@@ -1,5 +1,6 @@
 const message = require('../../modulo/config.js');
 const produtoDAO = require('../../model/DAO/estoque');
+const { inserirProduto } = require('../Produtos/produto.js');
 
 // Inserir um novo Estoque
 const inserirEstoque = async function(estoque, contentType) {
@@ -10,14 +11,13 @@ const inserirEstoque = async function(estoque, contentType) {
 
         if (
             !estoque.preco || estoque.preco === '' || estoque.preco === undefined ||
-            !produto.preco || produto.preco === '' || produto.preco === undefined ||
-            produto.estoque === undefined || produto.estoque === ''
+            !estoque.estoque || estoque.estoque === '' || estoque.estoque === undefined
         ) {
             return message.ERROR_REQUIRED_FIELDS;
         }
 
         // Validação adicional para preço e estoque
-        if (isNaN(produto.preco) || parseFloat(produto.preco) <= 0) {
+        if (isNaN(estoque.preco) || parseFloat(estoque.preco) <= 0) {
             return {
                 status: false,
                 status_code: 400,
@@ -25,7 +25,7 @@ const inserirEstoque = async function(estoque, contentType) {
             };
         }
 
-        if (isNaN(produto.estoque) || parseInt(produto.estoque, 10) < 0) {
+        if (isNaN(estoque.estoque) || parseInt(estoque.estoque, 10) < 0) {
             return {
                 status: false,
                 status_code: 400,
@@ -33,13 +33,13 @@ const inserirEstoque = async function(estoque, contentType) {
             };
         }
 
-        // Verifica se já existe um produto com o mesmo nome
-        const produtoExistente = await produtoDAO.selectByNome(produto.nome);
-        if (produtoExistente && produtoExistente.length > 0) {
-            return message.ERROR_ITEM_EXISTS;
+        // Verifica se o produto existe
+        const produtoExistente = await produtoDAO.selectByIdProduto(estoque.produtoId);
+        if (!produtoExistente || produtoExistente.length === 0) {
+            return message.ERROR_NOT_FOUND;
         }
 
-        const resultDadosProduto = await produtoDAO.insertProduto(produto);
+        const resultDadosEstoque = await produtoDAO.insertEstoque(estoque);
 
         if (resultDadosProduto) {
             return message.SUCESS_CREATED_ITEM;
@@ -311,11 +311,7 @@ const listarEstoqueBaixo = async function(estoqueMinimo) {
 };
 
 module.exports = {
-    inserirProduto,
-    listarProdutos,
-    buscarProduto,
-    atualizarProduto,
-    deletarProduto,
+    inserirEstoque,
     atualizarEstoque,
     buscarPorCategoria,
     listarEstoqueBaixo

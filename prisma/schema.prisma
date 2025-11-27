@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://root:bcd127@localhost:3306/db_teajuda_aa"
+}
+
+model Produto {
+  id            Int            @id @default(autoincrement())
+  nome          String
+  descricao     String?
+  preco         Float
+  estoque       Int
+  fabricante    Fabricante?    @relation(fields: [fabricanteId], references: [id])
+  fabricanteId  Int?
+  categoria     Categoria?     @relation(fields: [categoriaId], references: [id])
+  categoriaId   Int?
+  fichaTecnica  FichaTecnica?  @relation("ProdutoFichaTecnica")
+  estoques      Estoque[]      @relation("ProdutoEstoque")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Fabricante {
+  id          Int       @id @default(autoincrement())
+  nome        String    @unique
+  cnpj        String    @unique
+  endereco    String?
+  telefone    String?
+  produtos    Produto[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Categoria {
+  id          Int       @id @default(autoincrement())
+  nome        String    @unique
+  descricao   String?
+  produtos    Produto[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model FichaTecnica {
+  id                    Int       @id @default(autoincrement())
+  produto               Produto   @relation("ProdutoFichaTecnica", fields: [produtoId], references: [id])
+  produtoId             Int       @unique
+  descricao             String?
+  especificacoes        String?
+  instrucoesUso         String?
+  informacoesNutricionais String?
+  peso                  String?
+  dimensoes             String?
+  garantia              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Estoque {
+  id          Int       @id @default(autoincrement())
+  produto     Produto   @relation("ProdutoEstoque", fields: [produtoId], references: [id])
+  produtoId   Int
+  quantidade  Int
+  tipo        String    // 'entrada', 'saida', 'ajuste'
+  motivo      String?
+  observacao  String?
+  data        DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([produtoId])
+}
